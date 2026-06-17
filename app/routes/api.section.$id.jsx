@@ -2,8 +2,6 @@ import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request, params }) => {
-  const { authenticate } = await import("../shopify.server");
-  
   // Authenticate app proxy request
   const { session } = await authenticate.public.appProxy(request);
 
