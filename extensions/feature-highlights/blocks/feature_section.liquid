@@ -1,0 +1,76 @@
+<div class="feature-highlights-container" id="feature-highlights-{{ block.id }}" data-section-id="{{ block.settings.section_id }}">
+  <div class="feature-highlights-loader" style="text-align: center; padding: 50px;">Loading features...</div>
+  <div class="feature-highlights-content" style="display: none;"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const containerId = "feature-highlights-{{ block.id }}";
+  const container = document.getElementById(containerId);
+  const sectionId = container.getAttribute("data-section-id");
+  
+  if (!sectionId) {
+    container.innerHTML = "<p>Please enter a valid Section ID from the App Dashboard.</p>";
+    return;
+  }
+
+  // Use App Proxy to fetch the section data. 
+  // Assuming the App Proxy prefix is configured as 'apps/feature-highlights'
+  fetch("/apps/feature-highlights/api/section/" + sectionId)
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        container.innerHTML = "<p>Error loading section: " + data.error + "</p>";
+        return;
+      }
+      
+      const section = data.section;
+      const settings = JSON.parse(section.settings);
+      const contentDiv = container.querySelector(".feature-highlights-content");
+      const loaderDiv = container.querySelector(".feature-highlights-loader");
+      
+      // Build HTML based on templateId
+      let html = `<div style="background-color: ${settings.bgColor}; color: ${settings.textColor}; padding: ${settings.padding}; border-radius: ${settings.borderRadius};">`;
+      html += `<div style="text-align: center; margin-bottom: 30px;">`;
+      html += `<h2 style="font-size: 2em; margin-bottom: 10px; color: ${settings.textColor};">${section.title}</h2>`;
+      if (section.subtitle) html += `<p style="opacity: 0.8; color: ${settings.textColor};">${section.subtitle}</p>`;
+      html += `</div>`;
+      
+      html += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">`;
+      
+      section.features.forEach(f => {
+        // Simple generic design for all templates to start. In a real scenario, this switch handles 1-7.
+        html += `<div style="padding: 20px; background: rgba(0,0,0,0.03); border-radius: ${settings.borderRadius}; text-align: center;">`;
+        html += `<div style="font-size: 40px; color: ${settings.iconColor}; margin-bottom: 15px;">${f.icon}</div>`;
+        html += `<h3 style="font-size: 18px; margin-bottom: 10px; color: ${settings.textColor};">${f.title}</h3>`;
+        html += `<p style="opacity: 0.8; color: ${settings.textColor};">${f.description}</p>`;
+        html += `</div>`;
+      });
+      
+      html += `</div></div>`;
+      
+      contentDiv.innerHTML = html;
+      contentDiv.style.display = "block";
+      loaderDiv.style.display = "none";
+    })
+    .catch(err => {
+      container.innerHTML = "<p>Failed to load feature section.</p>";
+      console.error(err);
+    });
+});
+</script>
+
+{% schema %}
+{
+  "name": "Feature Highlights",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_id",
+      "label": "Section ID",
+      "info": "Copy and paste the Section ID from your App Dashboard."
+    }
+  ]
+}
+{% endschema %}
