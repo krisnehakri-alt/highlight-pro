@@ -95,19 +95,19 @@ const PLANS = [
   },
   {
     name: "STARTER",
-    price: "$39/mo",
+    price: "$49/mo",
     features: ["Everything in Free", "Unlock Design 2 (Modern Cards)", "Unlock Design 3 (Icon Focus)", "Priority Support"],
     color: "info"
   },
   {
     name: "PRO",
-    price: "$59/mo",
+    price: "$99/mo",
     features: ["Everything in Starter", "Unlock Design 4 (Glassmorphism)", "Unlock Design 5 (Advanced Layout)", "Remove Branding"],
     color: "attention"
   },
   {
     name: "PREMIUM",
-    price: "$99/mo",
+    price: "$119/mo",
     features: ["Everything in Pro", "Unlock Design 6 (Premium Animated)", "Unlock Design 7 (Gradient Flow)", "Dedicated Account Manager"],
     color: "critical"
   }
