@@ -9,6 +9,7 @@ import {
   Grid,
   List,
   Badge,
+  Image,
 } from "@shopify/polaris";
 import { useLoaderData, useSubmit } from "react-router";
 import { authenticate, billing } from "../shopify.server";
@@ -102,6 +103,10 @@ export default function Billing() {
   return (
     <Page title="Pricing & Plans" subtitle="Unlock premium designs to elevate your storefront.">
       <BlockStack gap="500">
+        <Image
+          source="https://via.placeholder.com/1200x300?text=Pricing+Banner"
+          alt="Pricing banner"
+        />
         <Layout>
           <Layout.Section>
             <Grid>
