@@ -102,7 +102,7 @@ const PLANS = [
   {
     name: "PRO",
     price: "$99/mo",
-    features: ["Everything in Starter", "Unlock Design 4 (Glassmorphism)", "Unlock Design 5 (Advanced Layout)", "Remove Branding"],
+    features: ["Everything in Starter", "Unlock Design 2 (Glassmorphism)", "Unlock Design 5 (Advanced Layout)", "Remove Branding"],
     color: "attention"
   },
   {
