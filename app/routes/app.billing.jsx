@@ -19,11 +19,15 @@ export const loader = async ({ request }) => {
   const user = await prisma.user.findUnique({ where: { shop: session.shop } });
   
   // Actually checking the billing API for active subscriptions
-  const activeSubscriptions = await billing.check({
-    session,
-    plans: ["STARTER", "PRO", "PREMIUM"],
-    isTest: true,
-  });
+  // Safely check for active subscriptions, guard against undefined billing
+  const activeSubscriptions = billing && typeof billing.check === "function"
+    ? await billing.check({
+        session,
+        plans: ["STARTER", "PRO", "PREMIUM"],
+        isTest: true,
+      })
+    : { hasActivePayment: false, appSubscriptions: [] };
+
 
   const currentPlan = activeSubscriptions.hasActivePayment ? 
     (activeSubscriptions.appSubscriptions[0]?.name || "FREE") : "FREE";
