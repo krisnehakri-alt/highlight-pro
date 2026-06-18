@@ -18,19 +18,19 @@ import prisma from "../db.server";
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const user = await prisma.user.findUnique({ where: { shop: session.shop } });
-  
+
   // Actually checking the billing API for active subscriptions
   // Safely check for active subscriptions, guard against undefined billing
   const activeSubscriptions = billing && typeof billing.check === "function"
     ? await billing.check({
-        session,
-        plans: ["STARTER", "PRO", "PREMIUM"],
-        isTest: true,
-      })
+      session,
+      plans: ["STARTER", "PRO", "PREMIUM"],
+      isTest: true,
+    })
     : { hasActivePayment: false, appSubscriptions: [] };
 
 
-  const currentPlan = activeSubscriptions.hasActivePayment ? 
+  const currentPlan = activeSubscriptions.hasActivePayment ?
     (activeSubscriptions.appSubscriptions[0]?.name || "FREE") : "FREE";
 
   // Update DB if out of sync
@@ -44,25 +44,46 @@ export const loader = async ({ request }) => {
   return { plan: currentPlan };
 };
 
-export const action = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
-  const formData = await request.formData();
-  const plan = formData.get("plan");
+export async function action({ request }) {
+  try {
+    // Guard against missing request (should never happen in Remix)
+    if (!request) {
+      throw new Error("Request object is undefined");
+    }
 
-  if (plan === "FREE") {
-    // Cancel subscription logic here using Shopify GraphQL API if needed
-    // For simplicity we just redirect
+    const { session } = await authenticate.admin(request);
+    const formData = await request.formData();
+    const plan = formData.get("plan");
+
+    // Validate plan is provided
+    if (!plan) {
+      return new Response(JSON.stringify({ error: "Plan not provided" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // No billing needed for the FREE plan
+    if (plan === "FREE") {
+      return null;
+    }
+
+    // Request upgrade/checkout from Shopify
+    await billing.request({
+      session,
+      plan,
+      isTest: true,
+      returnUrl: `https://${session.shop}/admin/apps/highlight-pro/app/billing`,
+    });
+
     return null;
+  } catch (error) {
+    console.error("[Billing action error]", error);
+    return new Response(JSON.stringify({ error: "Unable to process billing request" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-
-  await billing.request({
-    session,
-    plan: plan,
-    isTest: true,
-    returnUrl: `https://${session.shop}/admin/apps/highlight-pro/app/billing`,
-  });
-
-  return null;
 };
 
 const PLANS = [
@@ -113,7 +134,7 @@ export default function Billing() {
               {PLANS.map((p) => {
                 const isCurrentPlan = plan === p.name;
                 return (
-                  <Grid.Cell key={p.name} columnSpan={{xs: 6, sm: 6, md: 3, lg: 3, xl: 3}}>
+                  <Grid.Cell key={p.name} columnSpan={{ xs: 6, sm: 6, md: 3, lg: 3, xl: 3 }}>
                     <Card background={isCurrentPlan ? "bg-surface-success" : "bg-surface"}>
                       <BlockStack gap="400">
                         <BlockStack gap="100">
@@ -123,15 +144,15 @@ export default function Billing() {
                           </InlineStack>
                           <Text variant="heading3xl" as="p">{p.price}</Text>
                         </BlockStack>
-                        
+
                         <List type="bullet">
                           {p.features.map(f => (
                             <List.Item key={f}>{f}</List.Item>
                           ))}
                         </List>
 
-                        <Button 
-                          fullWidth 
+                        <Button
+                          fullWidth
                           variant={isCurrentPlan ? "plain" : "primary"}
                           tone={p.color}
                           disabled={isCurrentPlan}
