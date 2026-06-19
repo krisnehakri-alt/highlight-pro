@@ -18,16 +18,15 @@ export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Redirect root path to dashboard (/app)
+  // Redirect root path to templates (/app/templates)
   if (location.pathname === "/") {
-    navigate("/app", { replace: true });
+    navigate("/app/templates", { replace: true });
   }
 
   return (
     <AppProvider embedded apiKey={apiKey}>
       <PolarisAppProvider i18n={enTranslations}>
         <s-app-nav>
-          <s-link href="/app">Dashboard</s-link>
           <s-link href="/app/templates">Templates</s-link>
           <s-link href="/app/billing">Pricing</s-link>
         </s-app-nav>
