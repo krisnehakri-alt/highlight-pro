@@ -108,8 +108,8 @@ const PLANS = [
   {
     name: "PREMIUM",
     price: "$119/mo",
-    features: ["Everything in Pro", "Unlock Design 6 (Premium Animated)", "Unlock Design 7 (Gradient Flow)", "Dedicated Account Manager"],
-    color: "critical"
+    features: ["Everything in Pro", "Unlock Design 2 (Premium Animated)", "Unlock Design 7 (Gradient Flow)", "Dedicated Account Manager"],
+    color: "success"
   }
 ];
 
@@ -135,14 +135,20 @@ export default function Billing() {
                 const isCurrentPlan = plan === p.name;
                 return (
                   <Grid.Cell key={p.name} columnSpan={{ xs: 6, sm: 6, md: 3, lg: 3, xl: 3 }}>
-                    <Card background={isCurrentPlan ? "bg-surface-success" : "bg-surface"}>
+                    <Card background="bg-surface">
                       <BlockStack gap="400">
                         <BlockStack gap="100">
                           <InlineStack align="space-between">
                             <Text variant="headingMd" as="h3">{p.name}</Text>
                             {isCurrentPlan && <Badge tone="success">Current Plan</Badge>}
                           </InlineStack>
-                          <Text variant="heading3xl" as="p">{p.price}</Text>
+                          <Text
+                            as="p"
+                            variant="heading2xl"
+                            fontWeight="bold"
+                          >
+                            {p.price}
+                          </Text>
                         </BlockStack>
 
                         <List type="bullet">
@@ -153,12 +159,12 @@ export default function Billing() {
 
                         <Button
                           fullWidth
-                          variant={isCurrentPlan ? "plain" : "primary"}
-                          tone={p.color}
+                          variant="primary"
+                          tone={isCurrentPlan ? "success" : p.color}
                           disabled={isCurrentPlan}
                           onClick={() => handleSubscribe(p.name)}
                         >
-                          {isCurrentPlan ? "Active" : `Upgrade to ${p.name}`}
+                          {isCurrentPlan ? "Current Plan" : `Upgrade to ${p.name}`}
                         </Button>
                       </BlockStack>
                     </Card>

@@ -23,7 +23,7 @@ export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const shop = session.shop;
   const user = await prisma.user.findUnique({ where: { shop } });
-  
+
   return { plan: user?.subscriptionPlan || "FREE" };
 };
 
@@ -111,7 +111,7 @@ const TEMPLATES = [
     id: 6,
     name: "Design 6",
     plan: "Premium",
-    price: "$199/month",
+    price: "$119/month",
     category: "Premium",
     locked: true,
     previewStyle: { background: "#064e3b", color: "white" },
@@ -128,7 +128,7 @@ const TEMPLATES = [
     id: 7,
     name: "Design 7",
     plan: "Premium",
-    price: "$199/month",
+    price: "$119/month",
     category: "Premium",
     locked: true,
     previewStyle: { background: "#171717", color: "white" },
@@ -154,7 +154,7 @@ export default function Templates() {
   const { plan } = useLoaderData();
   const navigate = useNavigate();
   const currentLevel = PLAN_LEVELS[plan] || 0;
-  
+
   const [selected, setSelected] = useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState(null);
@@ -174,7 +174,7 @@ export default function Templates() {
     { id: 'free', content: 'Free (1)' },
     { id: 'starter', content: 'Starter ($49) (2)' },
     { id: 'pro', content: 'Pro ($99) (2)' },
-    { id: 'premium', content: 'Premium ($199) (2)' },
+    { id: 'premium', content: 'Premium ($119) (2)' },
   ];
 
   const filteredTemplates = TEMPLATES.filter((template) => {
@@ -187,8 +187,8 @@ export default function Templates() {
   });
 
   return (
-    <Page 
-      title="Templates" 
+    <Page
+      title="Templates"
       subtitle="Choose a template and create beautiful feature highlight sections."
       backAction={{ content: "Dashboard", onAction: () => navigate("/app") }}
     >
@@ -203,8 +203,8 @@ export default function Templates() {
                 const isLocked = currentLevel < requiredLevel;
 
                 return (
-                  <Grid.Cell key={template.id} columnSpan={{xs: 6, sm: 6, md: 4, lg: 4, xl: 4}}>
-                    <div 
+                  <Grid.Cell key={template.id} columnSpan={{ xs: 6, sm: 6, md: 4, lg: 4, xl: 4 }}>
+                    <div
                       style={{
                         backgroundColor: 'white',
                         borderRadius: 'var(--p-border-radius-200)',
@@ -226,10 +226,10 @@ export default function Templates() {
                       }}
                     >
                       {/* Template Preview Area */}
-                      <div 
-                        style={{ 
-                          height: '200px', 
-                          width: '100%', 
+                      <div
+                        style={{
+                          height: '200px',
+                          width: '100%',
                           ...template.previewStyle,
                           display: 'flex',
                           alignItems: 'center',
@@ -303,8 +303,8 @@ export default function Templates() {
                                     '--pc-button-hover-background': '#47539e',
                                     width: '100%'
                                   }}>
-                                    <Button 
-                                      fullWidth 
+                                    <Button
+                                      fullWidth
                                       variant="primary"
                                       onClick={() => navigate("/app/billing")}
                                     >
@@ -318,8 +318,8 @@ export default function Templates() {
                                     '--pc-button-hover-background': '#47539e',
                                     width: '100%'
                                   }}>
-                                    <Button 
-                                      fullWidth 
+                                    <Button
+                                      fullWidth
                                       variant="primary"
                                       onClick={() => navigate(`/app/create/${template.id}`)}
                                     >
@@ -368,10 +368,10 @@ export default function Templates() {
       >
         <Modal.Section>
           {activeTemplate && (
-            <div 
-              style={{ 
-                height: '400px', 
-                width: '100%', 
+            <div
+              style={{
+                height: '400px',
+                width: '100%',
                 ...activeTemplate.previewStyle,
                 display: 'flex',
                 alignItems: 'center',
