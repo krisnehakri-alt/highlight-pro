@@ -11,7 +11,7 @@ import {
   Badge,
   Image,
 } from "@shopify/polaris";
-import { useLoaderData, useSubmit } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import { authenticate, billing } from "../shopify.server";
 import prisma from "../db.server";
 
@@ -86,7 +86,7 @@ export async function action({ request }) {
   }
 };
 
-const PLANS = [
+export const PLANS = [
   {
     name: "FREE",
     price: "$0",
@@ -115,10 +115,11 @@ const PLANS = [
 
 export default function Billing() {
   const { plan } = useLoaderData();
-  const submit = useSubmit();
+  const navigate = useNavigate();
 
-  const handleSubscribe = (planName) => {
-    submit({ plan: planName }, { method: "POST" });
+  const handleUpgrade = (planName) => {
+    // Navigate to dedicated upgrade page for the selected plan
+    navigate(`/app/upgrade/${planName.toLowerCase()}`);
   };
 
   return (
@@ -162,7 +163,7 @@ export default function Billing() {
                           variant="primary"
                           tone={isCurrentPlan ? "success" : p.color}
                           disabled={isCurrentPlan}
-                          onClick={() => handleSubscribe(p.name)}
+                          onClick={() => handleUpgrade(p.name)}
                         >
                           {isCurrentPlan ? "Current Plan" : `Upgrade to ${p.name}`}
                         </Button>
