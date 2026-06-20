@@ -1,5 +1,3 @@
-import { json } from "@remix-run/node";
-
 export const loader = async ({ request }) => {
   try {
     // TODO: Replace with actual data fetching logic (e.g., database query)
@@ -7,7 +5,7 @@ export const loader = async ({ request }) => {
       message: "Hello from the server!",
       timestamp: new Date().toISOString(),
     };
-    return json(data);
+    return Response.json(data);
   } catch (error) {
     console.error("/api/data error:", error);
     // Return a detailed 500 response

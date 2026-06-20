@@ -1,5 +1,6 @@
 // Dashboard route removed as per requirements
 import { useLoaderData } from "react-router";
+import { Page, BlockStack, Text } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
