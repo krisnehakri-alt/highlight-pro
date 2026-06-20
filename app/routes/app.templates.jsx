@@ -28,11 +28,14 @@ export const loader = async ({ request }) => {
   const { hasActivePayment, appSubscriptions } = await billing.require({
     plans: ["STARTER", "PRO", "PREMIUM"],
     isTest: true,
-    onFailure: async () => billing.request({
-      plan: "STARTER",
-      isTest: true,
-      returnUrl: `https://${shop}/admin/apps/highlight-pro/app/templates`,
-    }),
+    onFailure: async () => {
+      const response = await billing.request({
+        plan: "STARTER",
+        isTest: true,
+        returnUrl: `https://${shop}/admin/apps/highlight-pro/app/templates`,
+      });
+      throw response;
+    },
   });
 
   const user = await prisma.user.findUnique({ where: { shop } });
