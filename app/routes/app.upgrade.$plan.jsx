@@ -1,5 +1,5 @@
 import { useLoaderData, Link, useNavigate } from "react-router";
-import { redirect } from "@remix-run/node";
+import { redirect } from "react-router";
 import { Page, Layout, Card, BlockStack, Text, Button } from "@shopify/polaris";
 import { PLANS } from "../app.billing";
 
