@@ -63,11 +63,12 @@ export async function action({ request }) {
     }
 
     console.log("Requesting Billing for plan:", plan);
-    await billing.request({
+    const billingResponse = await billing.request({
       plan: plan,
       isTest: true,
+      returnUrl: `https://${session.shop}/admin/apps/highlight-pro/app/billing`,
     });
-    return null;
+    return billingResponse;
   } catch (error) {
     if (error instanceof Response) {
       throw error;
