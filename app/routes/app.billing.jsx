@@ -11,19 +11,17 @@ import {
   Badge,
   Image,
 } from "@shopify/polaris";
-import { useLoaderData, useSubmit } from "react-router";
-import { authenticate, billing } from "../shopify.server";
+import { useLoaderData, Form } from "react-router";
+import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
 export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
+  const { session, billing } = await authenticate.admin(request);
   const user = await prisma.user.findUnique({ where: { shop: session.shop } });
 
-  // Actually checking the billing API for active subscriptions
   // Safely check for active subscriptions, guard against undefined billing
   const activeSubscriptions = billing && typeof billing.check === "function"
     ? await billing.check({
-      session,
       plans: ["STARTER", "PRO", "PREMIUM"],
       isTest: true,
     })
@@ -48,7 +46,7 @@ export async function action({ request }) {
   console.log("===== ACTION CALLED =====");
 
   try {
-    const { session } = await authenticate.admin(request);
+    const { session, billing } = await authenticate.admin(request);
     const formData = await request.formData();
     const plan = formData.get("plan");
     console.log("Selected Plan:", plan);
@@ -60,24 +58,17 @@ export async function action({ request }) {
       });
     }
 
-    // No billing needed for the FREE plan
     if (plan === "FREE") {
       return null;
     }
 
-    // billing.request() throws a redirect Response to Shopify's checkout page
     console.log("Requesting Billing for plan:", plan);
     await billing.request({
-      session,
-      plan,
+      plan: plan,
       isTest: true,
-      returnUrl: `https://${session.shop}/admin/apps/highlight-pro/app/billing`,
     });
-
     return null;
   } catch (error) {
-    // billing.request() throws a Response redirect — re-throw it so
-    // the browser actually navigates to Shopify's checkout page
     if (error instanceof Response) {
       throw error;
     }
@@ -118,15 +109,6 @@ export const PLANS = [
 
 export default function Billing() {
   const { plan } = useLoaderData();
-  const submit = useSubmit();
-
-  // Submit billing request for selected plan
-  const handleUpgrade = (planName) => {
-    submit(
-      { plan: planName },
-      { method: "post", replace: false }
-    );
-  };
 
   return (
     <Page title="Pricing & Plans" subtitle="Unlock premium designs to elevate your storefront.">
@@ -164,15 +146,18 @@ export default function Billing() {
                           ))}
                         </List>
 
-                        <Button
-                          fullWidth
-                          variant="primary"
-                          tone={isCurrentPlan ? "success" : p.color}
-                          disabled={isCurrentPlan}
-                          onClick={() => handleUpgrade(p.name)}
-                        >
-                          {isCurrentPlan ? "Current Plan" : `Upgrade to ${p.name}`}
-                        </Button>
+                        <Form method="post">
+                          <input type="hidden" name="plan" value={p.name} />
+                          <Button
+                            fullWidth
+                            variant="primary"
+                            tone={isCurrentPlan ? "success" : p.color}
+                            disabled={isCurrentPlan}
+                            submit
+                          >
+                            {isCurrentPlan ? "Current Plan" : `Upgrade to ${p.name}`}
+                          </Button>
+                        </Form>
                       </BlockStack>
                     </Card>
                   </Grid.Cell>

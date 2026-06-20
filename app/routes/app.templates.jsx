@@ -20,11 +20,33 @@ import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
 export const loader = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
+  const { session, billing } = await authenticate.admin(request);
   const shop = session.shop;
-  const user = await prisma.user.findUnique({ where: { shop } });
 
-  return { plan: user?.subscriptionPlan || "FREE" };
+  // Enforce billing: User must have one of these plans.
+  // If not, redirect them immediately to the Shopify Approval Page for STARTER.
+  const { hasActivePayment, appSubscriptions } = await billing.require({
+    plans: ["STARTER", "PRO", "PREMIUM"],
+    isTest: true,
+    onFailure: async () => billing.request({
+      plan: "STARTER",
+      isTest: true,
+      returnUrl: `https://${shop}/admin/apps/highlight-pro/app/templates`,
+    }),
+  });
+
+  const user = await prisma.user.findUnique({ where: { shop } });
+  const currentPlan = hasActivePayment ? appSubscriptions[0]?.name : "STARTER";
+
+  // Update DB with the current active plan
+  if (user && user.subscriptionPlan !== currentPlan) {
+    await prisma.user.update({
+      where: { shop },
+      data: { subscriptionPlan: currentPlan }
+    });
+  }
+
+  return { plan: currentPlan };
 };
 
 const TEMPLATES = [
