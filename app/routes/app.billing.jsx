@@ -11,7 +11,7 @@ import {
   Badge,
   Image,
 } from "@shopify/polaris";
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData, useSubmit } from "react-router";
 import { authenticate, billing } from "../shopify.server";
 import prisma from "../db.server";
 
@@ -45,17 +45,14 @@ export const loader = async ({ request }) => {
 };
 
 export async function action({ request }) {
-  try {
-    // Guard against missing request (should never happen in Remix)
-    if (!request) {
-      throw new Error("Request object is undefined");
-    }
+  console.log("===== ACTION CALLED =====");
 
+  try {
     const { session } = await authenticate.admin(request);
     const formData = await request.formData();
     const plan = formData.get("plan");
+    console.log("Selected Plan:", plan);
 
-    // Validate plan is provided
     if (!plan) {
       return new Response(JSON.stringify({ error: "Plan not provided" }), {
         status: 400,
@@ -68,7 +65,8 @@ export async function action({ request }) {
       return null;
     }
 
-    // Request upgrade/checkout from Shopify
+    // billing.request() throws a redirect Response to Shopify's checkout page
+    console.log("Requesting Billing for plan:", plan);
     await billing.request({
       session,
       plan,
@@ -78,6 +76,11 @@ export async function action({ request }) {
 
     return null;
   } catch (error) {
+    // billing.request() throws a Response redirect — re-throw it so
+    // the browser actually navigates to Shopify's checkout page
+    if (error instanceof Response) {
+      throw error;
+    }
     console.error("[Billing action error]", error);
     return new Response(JSON.stringify({ error: "Unable to process billing request" }), {
       status: 500,
@@ -115,11 +118,14 @@ export const PLANS = [
 
 export default function Billing() {
   const { plan } = useLoaderData();
-  const navigate = useNavigate();
+  const submit = useSubmit();
 
+  // Submit billing request for selected plan
   const handleUpgrade = (planName) => {
-    // Navigate to dedicated upgrade page for the selected plan
-    navigate(`/app/upgrade/${planName.toLowerCase()}`);
+    submit(
+      { plan: planName },
+      { method: "post", replace: false }
+    );
   };
 
   return (
