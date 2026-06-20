@@ -74,7 +74,11 @@ export async function action({ request }) {
       throw error;
     }
     console.error("[Billing action error]", error);
-    return new Response(JSON.stringify({ error: "Unable to process billing request" }), {
+    return new Response(JSON.stringify({ 
+      error: "Unable to process billing request", 
+      details: error?.message || String(error),
+      stack: error?.stack
+    }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
