@@ -151,7 +151,7 @@ export default function Billing() {
                           ))}
                         </List>
 
-                        <Form method="post">
+                        <Form method="post" reloadDocument>
                           <input type="hidden" name="plan" value={p.name} />
                           <Button
                             fullWidth
