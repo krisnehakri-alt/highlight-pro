@@ -90,7 +90,7 @@ export async function action({ request }) {
   }
 };
 
-export const PLANS = [
+const PLANS = [
   {
     name: "FREE",
     price: "$0",
