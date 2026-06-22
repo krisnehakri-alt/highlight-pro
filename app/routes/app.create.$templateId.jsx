@@ -104,6 +104,10 @@ export default function CreateSection() {
   const isFreeTemplate = templateId === 1;
   const isFirstStarterTemplate = templateId === 2;
   const isSecondStarterTemplate = templateId === 3;
+  const isFirstProTemplate = templateId === 4;
+  const isSecondProTemplate = templateId === 5;
+  const isFirstPremiumTemplate = templateId === 6;
+  const isSecondPremiumTemplate = templateId === 7;
 
   const [currentSectionId, setCurrentSectionId] = useState(section?.id);
   const [title, setTitle] = useState(section?.title || "Why Choose Us");
@@ -120,6 +124,27 @@ export default function CreateSection() {
     ? [
         { icon: "🚚", title: "Fast Delivery", description: "Delivery within 24 hours" },
         { icon: "🔒", title: "Secure Checkout", description: "100% safe payment" }
+      ]
+    : (isFirstProTemplate || isSecondProTemplate)
+    ? [
+        { icon: "🚚", title: "Fast Delivery", description: "Delivery within 24 hours" },
+        { icon: "📦", title: "Easy Returns", description: "30 days return policy" },
+        { icon: "🔒", title: "Secure Payment", description: "100% safe payment" },
+        { icon: "🕒", title: "24/7 Support", description: "Always available" }
+      ]
+    : isFirstPremiumTemplate
+    ? [
+        { icon: "🚚", title: "Free Shipping", description: "Free shipping on all orders" },
+        { icon: "🔁", title: "Easy Exchanges", description: "Hassle free exchanges" },
+        { icon: "🚀", title: "Fast Delivery", description: "Delivery within 24 hours" },
+        { icon: "🛡️", title: "24/7 Support", description: "We are always available" }
+      ]
+    : isSecondPremiumTemplate
+    ? [
+        { icon: "🏢", title: "Enterprise Grade", description: "Built for scale & performance" },
+        { icon: "🔐", title: "Top Security", description: "Bank-level security" },
+        { icon: "⭐", title: "Premium Quality", description: "Premium quality" },
+        { icon: "⚡", title: "Reliable Uptime", description: "99.9% uptime guarantee" }
       ]
     : [
         { icon: "🚚", title: "Fast Delivery", description: "Delivery within 24 hours" },
@@ -163,6 +188,8 @@ export default function CreateSection() {
     if (isFreeTemplate && features.length >= 2) return;
     if (isFirstStarterTemplate && features.length >= 3) return;
     if (isSecondStarterTemplate && features.length >= 3) return;
+    if ((isFirstProTemplate || isSecondProTemplate) && features.length >= 4) return;
+    if ((isFirstPremiumTemplate || isSecondPremiumTemplate) && features.length >= 4) return;
     setFeatures([...features, { icon: "✨", title: "New Feature", description: "Description goes here" }]);
   };
 
@@ -225,7 +252,7 @@ export default function CreateSection() {
                     </BlockStack>
                   </Box>
                 ))}
-                {(!isFreeTemplate || features.length < 2) && (!isFirstStarterTemplate || features.length < 3) && (!isSecondStarterTemplate || features.length < 3) && (
+                {(!isFreeTemplate || features.length < 2) && (!isFirstStarterTemplate || features.length < 3) && (!isSecondStarterTemplate || features.length < 3) && (!isFirstProTemplate || features.length < 4) && (!isSecondProTemplate || features.length < 4) && (!isFirstPremiumTemplate || features.length < 4) && (!isSecondPremiumTemplate || features.length < 4) && (
                   <Button fullWidth onClick={addFeature}>Add Feature</Button>
                 )}
               </BlockStack>
