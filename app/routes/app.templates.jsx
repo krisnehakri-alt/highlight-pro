@@ -86,7 +86,6 @@ const TEMPLATES = [
     features: [
       { title: "Fast Delivery", subtitle: "Delivery in 24 hours", iconColor: "#8a2be2" },
       { title: "Secure Payment", subtitle: "100% safe checkout", iconColor: "#d2691e" },
-      { title: "Money Guarantee", subtitle: "30 days money back", iconColor: "#dc143c" },
       { title: "24/7 Support", subtitle: "We are always available", iconColor: "#dc143c" },
     ]
   },

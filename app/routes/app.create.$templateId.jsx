@@ -102,6 +102,8 @@ export default function CreateSection() {
   const actionData = useActionData();
 
   const isFreeTemplate = templateId === 1;
+  const isFirstStarterTemplate = templateId === 2;
+  const isSecondStarterTemplate = templateId === 3;
 
   const [currentSectionId, setCurrentSectionId] = useState(section?.id);
   const [title, setTitle] = useState(section?.title || "Why Choose Us");
@@ -159,6 +161,8 @@ export default function CreateSection() {
 
   const addFeature = () => {
     if (isFreeTemplate && features.length >= 2) return;
+    if (isFirstStarterTemplate && features.length >= 3) return;
+    if (isSecondStarterTemplate && features.length >= 3) return;
     setFeatures([...features, { icon: "✨", title: "New Feature", description: "Description goes here" }]);
   };
 
@@ -221,7 +225,7 @@ export default function CreateSection() {
                     </BlockStack>
                   </Box>
                 ))}
-                {(!isFreeTemplate || features.length < 2) && (
+                {(!isFreeTemplate || features.length < 2) && (!isFirstStarterTemplate || features.length < 3) && (!isSecondStarterTemplate || features.length < 3) && (
                   <Button fullWidth onClick={addFeature}>Add Feature</Button>
                 )}
               </BlockStack>

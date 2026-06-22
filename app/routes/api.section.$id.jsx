@@ -23,5 +23,9 @@ export const loader = async ({ request, params }) => {
     section.features = section.features.slice(0, 2);
   }
 
+  if (section.templateId === 3) {
+    section.features = section.features.slice(0, 3);
+  }
+
   return Response.json({ section });
 };
