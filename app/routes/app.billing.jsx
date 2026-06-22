@@ -11,7 +11,8 @@ import {
   Badge,
   Image,
 } from "@shopify/polaris";
-import { useLoaderData, Form } from "react-router";
+import { useLoaderData, useActionData, Form } from "react-router";
+import { useEffect } from "react";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
@@ -71,6 +72,10 @@ export async function action({ request }) {
     return billingResponse;
   } catch (error) {
     if (error instanceof Response) {
+      const location = error.headers.get("Location") || error.headers.get("X-Shopify-API-Request-Failure-Reauthorize-Url");
+      if (location) {
+        return { redirectUrl: location };
+      }
       throw error;
     }
     console.error("[Billing action error]", error);
@@ -114,6 +119,17 @@ export const PLANS = [
 
 export default function Billing() {
   const { plan } = useLoaderData();
+  const actionData = useActionData();
+
+  useEffect(() => {
+    if (actionData && actionData.redirectUrl) {
+      if (window.shopify) {
+        window.open(actionData.redirectUrl, "_top");
+      } else {
+        window.top.location.href = actionData.redirectUrl;
+      }
+    }
+  }, [actionData]);
 
   return (
     <Page title="Pricing & Plans" subtitle="Unlock premium designs to elevate your storefront.">
