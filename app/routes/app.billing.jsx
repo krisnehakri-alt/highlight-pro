@@ -10,6 +10,7 @@ import {
   List,
   Badge,
   Image,
+
 } from "@shopify/polaris";
 import { useLoaderData, useActionData, Form } from "react-router";
 import { useEffect } from "react";
@@ -87,7 +88,7 @@ export async function action({ request }) {
         where: { shop: session.shop },
         data: { subscriptionPlan: "FREE" }
       });
-      
+
       return { success: true, plan: "FREE" };
     }
 
@@ -107,8 +108,8 @@ export async function action({ request }) {
       throw error;
     }
     console.error("[Billing action error]", error);
-    return new Response(JSON.stringify({ 
-      error: "Unable to process billing request", 
+    return new Response(JSON.stringify({
+      error: "Unable to process billing request",
       details: error?.message || String(error),
       stack: error?.stack
     }), {
@@ -136,10 +137,7 @@ export default function Billing() {
   return (
     <Page title="Pricing & Plans" subtitle="Unlock premium designs to elevate your storefront.">
       <BlockStack gap="500">
-        <Image
-          source="https://via.placeholder.com/1200x300?text=Pricing+Banner"
-          alt="Pricing banner"
-        />
+
         <Layout>
           <Layout.Section>
             <Grid>
