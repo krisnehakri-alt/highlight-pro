@@ -19,5 +19,9 @@ export const loader = async ({ request, params }) => {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
 
+  if (section.templateId === 1) {
+    section.features = section.features.slice(0, 2);
+  }
+
   return Response.json({ section });
 };

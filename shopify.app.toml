@@ -2,7 +2,7 @@
 
 client_id = "dc44cebb1117652882028d8da79fe31a"
 name = "highlight pro"
-application_url = "https://example.com"
+application_url = "https://highlight-pro-alpha.vercel.app"
 embedded = true
 
 [access_scopes]
@@ -45,7 +45,7 @@ api_version = "2026-07"
   topics = [ "app/scopes_update" ]
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://highlight-pro-alpha.vercel.app/api/auth" ]
 
 [build]
 include_config_on_deploy = true

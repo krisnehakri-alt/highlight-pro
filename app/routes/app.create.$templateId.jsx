@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Page,
   Layout,
@@ -15,7 +15,7 @@ import {
   hexToRgb,
   rgbToHsb
 } from "@shopify/polaris";
-import { useLoaderData, useSubmit, useNavigate } from "react-router";
+import { useLoaderData, useSubmit, useNavigate, useActionData } from "react-router";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
@@ -92,14 +92,18 @@ export const action = async ({ request, params }) => {
     });
   }
 
-  return { success: true, sectionId: section.id };
+  return { success: true, sectionId: section.id, status: payload.status };
 };
 
 export default function CreateSection() {
   const { templateId, section } = useLoaderData();
   const submit = useSubmit();
   const navigate = useNavigate();
+  const actionData = useActionData();
 
+  const isFreeTemplate = templateId === 1;
+
+  const [currentSectionId, setCurrentSectionId] = useState(section?.id);
   const [title, setTitle] = useState(section?.title || "Why Choose Us");
   const [subtitle, setSubtitle] = useState(section?.subtitle || "We provide the best service in the industry");
   const [settings, setSettings] = useState(section?.settings ? JSON.parse(section.settings) : {
@@ -110,15 +114,34 @@ export default function CreateSection() {
     borderRadius: "8px"
   });
 
-  const [features, setFeatures] = useState(section?.features || [
-    { icon: "🚚", title: "Fast Delivery", description: "Delivery within 24 hours" },
-    { icon: "🔒", title: "Secure Checkout", description: "100% safe payment" },
-    { icon: "🎧", title: "24/7 Support", description: "Always available" }
-  ]);
+  const defaultFeatures = isFreeTemplate 
+    ? [
+        { icon: "🚚", title: "Fast Delivery", description: "Delivery within 24 hours" },
+        { icon: "🔒", title: "Secure Checkout", description: "100% safe payment" }
+      ]
+    : [
+        { icon: "🚚", title: "Fast Delivery", description: "Delivery within 24 hours" },
+        { icon: "🔒", title: "Secure Checkout", description: "100% safe payment" },
+        { icon: "🎧", title: "24/7 Support", description: "Always available" }
+      ];
+
+  const [features, setFeatures] = useState(section?.features || defaultFeatures);
+
+  useEffect(() => {
+    if (actionData?.success) {
+      if (actionData.status === "PUBLISHED") {
+        navigate("/app/templates");
+      } else {
+        if (actionData.sectionId) {
+          setCurrentSectionId(actionData.sectionId);
+        }
+      }
+    }
+  }, [actionData, navigate]);
 
   const handleSave = (status) => {
     const payload = {
-      id: section?.id,
+      id: currentSectionId,
       title,
       subtitle,
       settings,
@@ -135,6 +158,7 @@ export default function CreateSection() {
   };
 
   const addFeature = () => {
+    if (isFreeTemplate && features.length >= 2) return;
     setFeatures([...features, { icon: "✨", title: "New Feature", description: "Description goes here" }]);
   };
 
@@ -197,7 +221,9 @@ export default function CreateSection() {
                     </BlockStack>
                   </Box>
                 ))}
-                <Button fullWidth onClick={addFeature}>Add Feature</Button>
+                {(!isFreeTemplate || features.length < 2) && (
+                  <Button fullWidth onClick={addFeature}>Add Feature</Button>
+                )}
               </BlockStack>
             </Card>
           </BlockStack>
