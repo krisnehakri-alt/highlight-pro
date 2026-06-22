@@ -15,6 +15,7 @@ import { useLoaderData, useActionData, Form } from "react-router";
 import { useEffect } from "react";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
+import { PLANS } from "../constants/plans";
 
 export const loader = async ({ request }) => {
   const { session, billing } = await authenticate.admin(request);
@@ -90,32 +91,6 @@ export async function action({ request }) {
   }
 };
 
-const PLANS = [
-  {
-    name: "FREE",
-    price: "$0",
-    features: ["1 Clean Grid Design", "Basic Customization", "Unlimited Features", "Community Support"],
-    color: "success"
-  },
-  {
-    name: "STARTER",
-    price: "$49/mo",
-    features: ["Everything in Free", "Unlock Design 2 (Modern Cards)", "Unlock Design 3 (Icon Focus)", "Priority Support"],
-    color: "info"
-  },
-  {
-    name: "PRO",
-    price: "$99/mo",
-    features: ["Everything in Starter", "Unlock Design 2 (Glassmorphism)", "Unlock Design 5 (Advanced Layout)", "Remove Branding"],
-    color: "attention"
-  },
-  {
-    name: "PREMIUM",
-    price: "$119/mo",
-    features: ["Everything in Pro", "Unlock Design 2 (Premium Animated)", "Unlock Design 7 (Gradient Flow)", "Dedicated Account Manager"],
-    color: "success"
-  }
-];
 
 export default function Billing() {
   const { plan } = useLoaderData();

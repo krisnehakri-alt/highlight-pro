@@ -1,7 +1,7 @@
 import { useLoaderData, Link, useNavigate } from "react-router";
 import { redirect } from "react-router";
 import { Page, Layout, Card, BlockStack, Text, Button } from "@shopify/polaris";
-import { PLANS } from "./app.billing";
+import { PLANS } from "../constants/plans";
 
 // Loader to fetch plan details based on URL param
 export const loader = async ({ params }) => {
