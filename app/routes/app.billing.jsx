@@ -61,7 +61,34 @@ export async function action({ request }) {
     }
 
     if (plan === "FREE") {
-      return null;
+      console.log("Downgrading to FREE");
+      try {
+        const activeSubscriptions = await billing.check({
+          plans: ["STARTER", "PRO", "PREMIUM"],
+          isTest: true,
+        });
+
+        if (activeSubscriptions.hasActivePayment && activeSubscriptions.appSubscriptions.length > 0) {
+          const subscriptionId = activeSubscriptions.appSubscriptions[0].id;
+          console.log("Cancelling subscription:", subscriptionId);
+          await billing.cancel({
+            subscriptionId: subscriptionId,
+            isTest: true,
+            prorate: true,
+          });
+        }
+      } catch (cancelError) {
+        console.error("Failed to cancel Shopify subscription:", cancelError);
+        // Continue to update local DB even if cancellation fails or isn't found
+      }
+
+      console.log("Updating database to FREE");
+      await prisma.user.update({
+        where: { shop: session.shop },
+        data: { subscriptionPlan: "FREE" }
+      });
+      
+      return { success: true, plan: "FREE" };
     }
 
     console.log("Requesting Billing for plan:", plan);
