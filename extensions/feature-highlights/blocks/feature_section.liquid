@@ -8,9 +8,10 @@ document.addEventListener("DOMContentLoaded", function() {
   const containerId = "feature-highlights-{{ block.id }}";
   const container = document.getElementById(containerId);
   
-  // Use App Proxy to fetch the section data. 
-  // Assuming the App Proxy prefix is configured as 'apps/feature-highlights'
-  fetch("/apps/feature-highlights/api/section/latest")
+  // Fetch section data directly from the app backend
+  const appUrl = "https://highlight-pro-alpha.vercel.app";
+  const shopDomain = "{{ shop.permanent_domain }}";
+  fetch(`${appUrl}/api/storefront/section?shop=${encodeURIComponent(shopDomain)}`)
     .then(async response => {
       if (!response.ok) {
         const text = await response.text();
