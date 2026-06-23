@@ -48,7 +48,7 @@ api_version = "2026-07"
 redirect_urls = [ "https://highlight-pro-alpha.vercel.app/api/auth" ]
 
 [build]
-automatically_update_urls_on_dev = true
+automatically_update_urls_on_dev = false
 
 [app_proxy]
 url = "https://highlight-pro-alpha.vercel.app/"
