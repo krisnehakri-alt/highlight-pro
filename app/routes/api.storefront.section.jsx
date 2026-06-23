@@ -68,7 +68,7 @@ export const loader = async ({ request }) => {
   } catch (error) {
     console.error("Storefront section API error:", error);
     return Response.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error.message },
       { status: 500, headers: corsHeaders }
     );
   }
