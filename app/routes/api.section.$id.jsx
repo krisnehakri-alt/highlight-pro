@@ -15,7 +15,7 @@ export const loader = async ({ request, params }) => {
   }
 
   const url = new URL(request.url);
-  const shop = session?.shop || url.searchParams.get("shop");
+  const shop = authResult?.session?.shop || url.searchParams.get("shop");
 
   if (!shop) {
     console.log("No shop found in app proxy request or URL.");
@@ -35,7 +35,7 @@ export const loader = async ({ request, params }) => {
       });
       console.log("Found latest section:", section?.id);
     } else {
-      console.log("No user found for shop:", session.shop);
+      console.log("No user found for shop:", shop);
     }
   } else {
     section = await prisma.section.findUnique({
