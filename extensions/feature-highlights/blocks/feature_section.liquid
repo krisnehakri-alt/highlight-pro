@@ -1,4 +1,4 @@
-<div class="feature-highlights-container" id="feature-highlights-{{ block.id }}" data-section-id="{{ block.settings.section_id }}">
+<div class="feature-highlights-container" id="feature-highlights-{{ block.id }}">
   <div class="feature-highlights-loader" style="text-align: center; padding: 50px;">Loading features...</div>
   <div class="feature-highlights-content" style="display: none;"></div>
 </div>
@@ -7,17 +7,17 @@
 document.addEventListener("DOMContentLoaded", function() {
   const containerId = "feature-highlights-{{ block.id }}";
   const container = document.getElementById(containerId);
-  const sectionId = container.getAttribute("data-section-id");
   
-  if (!sectionId) {
-    container.innerHTML = "<p>Please enter a valid Section ID from the App Dashboard.</p>";
-    return;
-  }
-
   // Use App Proxy to fetch the section data. 
   // Assuming the App Proxy prefix is configured as 'apps/feature-highlights'
-  fetch("/apps/feature-highlights/api/section/" + sectionId)
-    .then(response => response.json())
+  fetch("/apps/feature-highlights/api/section/latest")
+    .then(async response => {
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`HTTP ${response.status}: ${text}`);
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.error) {
         container.innerHTML = "<p>Error loading section: " + data.error + "</p>";
@@ -54,8 +54,8 @@ document.addEventListener("DOMContentLoaded", function() {
       loaderDiv.style.display = "none";
     })
     .catch(err => {
-      container.innerHTML = "<p>Failed to load feature section.</p>";
-      console.error(err);
+      container.innerHTML = `<p style="color:red; text-align:center; padding:20px;">Failed to load feature section.<br><small>${err.message}</small></p>`;
+      console.error("Feature Highlights Fetch Error:", err);
     });
 });
 </script>
@@ -64,13 +64,6 @@ document.addEventListener("DOMContentLoaded", function() {
 {
   "name": "Feature Highlights",
   "target": "section",
-  "settings": [
-    {
-      "type": "text",
-      "id": "section_id",
-      "label": "Section ID",
-      "info": "Copy and paste the Section ID from your App Dashboard."
-    }
-  ]
+  "settings": []
 }
 {% endschema %}
