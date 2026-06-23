@@ -14,6 +14,19 @@ export default async function handleRequest(
   reactRouterContext,
 ) {
   addDocumentResponseHeaders(request, responseHeaders);
+
+  // Fix: Remove X-Frame-Options so Shopify Admin can embed this app in an iframe.
+  // The Shopify SDK sets the correct Content-Security-Policy frame-ancestors instead.
+  responseHeaders.delete("X-Frame-Options");
+
+  // Ensure Shopify Admin domains can always embed the app (covers all myshopify.com stores)
+  if (!responseHeaders.has("Content-Security-Policy")) {
+    responseHeaders.set(
+      "Content-Security-Policy",
+      "frame-ancestors 'none' https://*.myshopify.com https://admin.shopify.com https://shop.app;"
+    );
+  }
+
   const userAgent = request.headers.get("user-agent");
   const callbackName = isbot(userAgent ?? "") ? "onAllReady" : "onShellReady";
 
@@ -49,3 +62,4 @@ export default async function handleRequest(
     setTimeout(abort, streamTimeout + 1000);
   });
 }
+
