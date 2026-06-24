@@ -13,9 +13,10 @@ import {
   ColorPicker,
   hsbToHex,
   hexToRgb,
-  rgbToHsb
+  rgbToHsb,
+  Banner
 } from "@shopify/polaris";
-import { useLoaderData, useSubmit, useNavigate, useActionData } from "react-router";
+import { useLoaderData, useSubmit, useNavigate, useActionData, redirect } from "react-router";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
@@ -36,63 +37,79 @@ export const loader = async ({ request, params }) => {
 };
 
 export const action = async ({ request, params }) => {
-  const { session } = await authenticate.admin(request);
-  const formData = await request.formData();
-  const payload = JSON.parse(formData.get("payload"));
-  
-  const user = await prisma.user.findUnique({ where: { shop: session.shop } });
-
-  let section;
-  if (payload.id) {
-    // Update existing
-    section = await prisma.section.update({
-      where: { id: payload.id },
-      data: {
-        title: payload.title,
-        subtitle: payload.subtitle,
-        settings: JSON.stringify(payload.settings),
-        status: payload.status,
-      }
-    });
-
-    // Handle features: Delete old, insert new for simplicity
-    await prisma.feature.deleteMany({ where: { sectionId: section.id } });
-    for (let i = 0; i < payload.features.length; i++) {
-      const f = payload.features[i];
-      await prisma.feature.create({
+  try {
+    const { session } = await authenticate.admin(request);
+    const formData = await request.formData();
+    const payload = JSON.parse(formData.get("payload"));
+    
+    let user = await prisma.user.findUnique({ where: { shop: session.shop } });
+    if (!user) {
+      user = await prisma.user.create({
         data: {
-          sectionId: section.id,
-          icon: f.icon,
-          title: f.title,
-          description: f.description,
-          order: i
+          shop: session.shop
         }
       });
     }
 
-  } else {
-    // Create new
-    section = await prisma.section.create({
-      data: {
-        userId: user.id,
-        templateId: parseInt(params.templateId),
-        title: payload.title,
-        subtitle: payload.subtitle,
-        settings: JSON.stringify(payload.settings),
-        status: payload.status,
-        features: {
-          create: payload.features.map((f, i) => ({
-            icon: f.icon,
-            title: f.title,
-            description: f.description,
-            order: i
-          }))
+    let section;
+    if (payload.id) {
+      // Update existing
+      section = await prisma.section.update({
+        where: { id: payload.id },
+        data: {
+          title: payload.title || "Section Title",
+          subtitle: payload.subtitle || "",
+          settings: JSON.stringify(payload.settings || {}),
+          status: payload.status,
         }
-      }
-    });
-  }
+      });
 
-  return { success: true, sectionId: section.id, status: payload.status };
+      // Handle features: Delete old, insert new for simplicity
+      await prisma.feature.deleteMany({ where: { sectionId: section.id } });
+      for (let i = 0; i < payload.features.length; i++) {
+        const f = payload.features[i];
+        await prisma.feature.create({
+          data: {
+            sectionId: section.id,
+            icon: f.icon || "",
+            title: f.title || "",
+            description: f.description || "",
+            order: i
+          }
+        });
+      }
+
+    } else {
+      // Create new
+      section = await prisma.section.create({
+        data: {
+          userId: user.id,
+          templateId: parseInt(params.templateId),
+          title: payload.title || "Section Title",
+          subtitle: payload.subtitle || "",
+          settings: JSON.stringify(payload.settings || {}),
+          status: payload.status,
+          features: {
+            create: payload.features.map((f, i) => ({
+              icon: f.icon || "",
+              title: f.title || "",
+              description: f.description || "",
+              order: i
+            }))
+          }
+        }
+      });
+    }
+
+    if (payload.status === "PUBLISHED") {
+      return redirect("/app/templates");
+    }
+
+    return { success: true, sectionId: section.id, status: payload.status };
+  } catch (error) {
+    console.error("Action error:", error);
+    return { success: false, error: error.message || "An unexpected error occurred while saving." };
+  }
 };
 
 export default function CreateSection() {
@@ -109,7 +126,7 @@ export default function CreateSection() {
   const isFirstPremiumTemplate = templateId === 6;
   const isSecondPremiumTemplate = templateId === 7;
 
-  const [currentSectionId, setCurrentSectionId] = useState(section?.id);
+  const [currentSectionId, setCurrentSectionId] = useState(section?.id || null);
   const [title, setTitle] = useState(section?.title || "Why Choose Us");
   const [subtitle, setSubtitle] = useState(section?.subtitle || "We provide the best service in the industry");
   const [settings, setSettings] = useState(section?.settings ? JSON.parse(section.settings) : {
@@ -156,15 +173,11 @@ export default function CreateSection() {
 
   useEffect(() => {
     if (actionData?.success) {
-      if (actionData.status === "PUBLISHED") {
-        navigate("/app/templates");
-      } else {
-        if (actionData.sectionId) {
-          setCurrentSectionId(actionData.sectionId);
-        }
+      if (actionData.status !== "PUBLISHED" && actionData.sectionId) {
+        setCurrentSectionId(actionData.sectionId);
       }
     }
-  }, [actionData, navigate]);
+  }, [actionData]);
 
   const handleSave = (status) => {
     const payload = {
@@ -214,6 +227,13 @@ export default function CreateSection() {
       secondaryActions={[{ content: "Save Draft", onAction: () => handleSave("DRAFT") }]}
     >
       <Layout>
+        {actionData?.error && (
+          <Layout.Section>
+            <Banner tone="critical" title="Error saving section">
+              <p>{actionData.error}</p>
+            </Banner>
+          </Layout.Section>
+        )}
         <Layout.Section variant="oneThird">
           <BlockStack gap="400">
             <Card title="General Info">
