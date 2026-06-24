@@ -12,7 +12,7 @@ import {
   Image,
 
 } from "@shopify/polaris";
-import { useLoaderData, useActionData, Form } from "react-router";
+import { useLoaderData, useActionData, Form, redirect } from "react-router";
 import { useEffect } from "react";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
@@ -21,6 +21,7 @@ import { PLANS } from "../constants/plans";
 export const loader = async ({ request }) => {
   const { session, billing } = await authenticate.admin(request);
   const user = await prisma.user.findUnique({ where: { shop: session.shop } });
+  const url = new URL(request.url);
 
   // Safely check for active subscriptions, guard against undefined billing
   const activeSubscriptions = billing && typeof billing.check === "function"
@@ -40,6 +41,11 @@ export const loader = async ({ request }) => {
       where: { shop: session.shop },
       data: { subscriptionPlan: currentPlan }
     });
+  }
+
+  // Shopify appends charge_id to the returnUrl after a billing flow
+  if (url.searchParams.has("charge_id")) {
+    return redirect("/app/templates");
   }
 
   return { plan: currentPlan };
