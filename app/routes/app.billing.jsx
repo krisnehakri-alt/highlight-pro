@@ -99,10 +99,12 @@ export async function action({ request }) {
     }
 
     console.log("Requesting Billing for plan:", plan);
+    const url = new URL(request.url);
+    const returnUrl = `${url.protocol}//${url.host}/app/templates`;
     const billingResponse = await billing.request({
       plan: plan,
       isTest: true,
-      returnUrl: `https://${session.shop}/admin/apps/highlight-pro/app/billing`,
+      returnUrl: returnUrl,
     });
     return billingResponse;
   } catch (error) {
