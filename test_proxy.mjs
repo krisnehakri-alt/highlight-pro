@@ -1,7 +1,7 @@
 // Test App Proxy from storefront side
 const urls = [
   'https://shivansh-test-store.myshopify.com/apps/feature-highlights/api/section/latest',
-  'https://highlight-pro-alpha.vercel.app/api/section/latest',
+  'https://highlight-pro.norexa.online/api/section/latest',
 ];
 
 for (const url of urls) {

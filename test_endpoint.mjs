@@ -1,8 +1,8 @@
 // Test all possible endpoint URLs
 const urls = [
-  'https://highlight-pro-alpha.vercel.app/api/section/latest',
-  'https://highlight-pro-alpha.vercel.app/api/section/latest?shop=shivansh-test-store.myshopify.com',
-  'https://highlight-pro-alpha.vercel.app/api/data',
+  'https://highlight-pro.norexa.online/api/section/latest',
+  'https://highlight-pro.norexa.online/api/section/latest?shop=shivansh-test-store.myshopify.com',
+  'https://highlight-pro.norexa.online/api/data',
 ];
 
 for (const url of urls) {

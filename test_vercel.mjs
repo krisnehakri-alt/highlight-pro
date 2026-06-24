@@ -1,6 +1,6 @@
 const urls = [
-  'https://highlight-pro-alpha.vercel.app/app/templates',
-  'https://highlight-pro-alpha.vercel.app/api/storefront/section?shop=shivansh-test-store.myshopify.com',
+  'https://highlight-pro.norexa.online/app/templates',
+  'https://highlight-pro.norexa.online/api/storefront/section?shop=shivansh-test-store.myshopify.com',
 ];
 
 for (const url of urls) {

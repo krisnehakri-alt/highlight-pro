@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const container = document.getElementById(containerId);
   
   // Fetch section data directly from the app backend
-  const appUrl = "https://highlight-pro-alpha.vercel.app";
+  const appUrl = "https://highlight-pro.norexa.online";
   const shopDomain = "{{ shop.permanent_domain }}";
   fetch(`${appUrl}/api/storefront/section?shop=${encodeURIComponent(shopDomain)}`)
     .then(async response => {
