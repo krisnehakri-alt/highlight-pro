@@ -1,17 +1,15 @@
 import { redirect, Form, useLoaderData } from "react-router";
 import styles from "./styles.module.css";
 
-import { login } from "../shopify.server";
-
 export const loader = async ({ request }) => {
   const url = new URL(request.url);
 
   if (url.searchParams.get("shop")) {
     const search = url.searchParams.toString();
-    throw redirect(`/app/templates?${search}`);
+    throw redirect(search ? `/app/templates?${search}` : '/app/templates');
   }
 
-  return { showForm: Boolean(login) };
+  return { showForm: true };
 };
 
 export default function App() {
