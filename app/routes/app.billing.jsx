@@ -100,7 +100,8 @@ export async function action({ request }) {
 
     console.log("Requesting Billing for plan:", plan);
     const url = new URL(request.url);
-    const returnUrl = `${url.protocol}//${url.host}/app/templates`;
+    const hostParam = url.searchParams.get("host");
+    const returnUrl = `${url.protocol}//${url.host}/app/templates?shop=${session.shop}${hostParam ? `&host=${hostParam}` : ''}`;
     const billingResponse = await billing.request({
       plan: plan,
       isTest: true,
