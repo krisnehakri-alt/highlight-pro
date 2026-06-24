@@ -99,9 +99,7 @@ export async function action({ request }) {
     }
 
     console.log("Requesting Billing for plan:", plan);
-    const url = new URL(request.url);
-    const hostParam = url.searchParams.get("host");
-    const returnUrl = `${url.protocol}//${url.host}/app/templates?shop=${session.shop}${hostParam ? `&host=${hostParam}` : ''}`;
+    const returnUrl = `https://${session.shop}/admin/apps/${process.env.SHOPIFY_API_KEY}/app/templates`;
     const billingResponse = await billing.request({
       plan: plan,
       isTest: true,
